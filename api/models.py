@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 from pygments.lexers import get_all_lexers
 from pygments.styles import get_all_styles
 
@@ -94,22 +95,27 @@ class ProductProject(models.Model):
         verbose_name_plural = verbose_name
 
 class Order(models.Model):
-    province_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='province')])
-    customer_source_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='cus_source')])
-    useage_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='usage')])
-    useage_detail_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='usage_detail')])
+    # province_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='province')])
+    # customer_source_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='cus_source')])
+    # useage_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='usage')])
+    # useage_detail_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='usage_detail')])
     sales_choice = [(item.name,item.name) for item in CodeDic.objects.filter(type='sales')]
 
-    order_num = models.CharField(max_length=100,verbose_name='订单号',null=True,blank=True)
+    # order_num = models.CharField(max_length=100,verbose_name='订单号',null=True,blank=True)
     order_date = models.DateField(verbose_name='订单日期',null=True,blank=True)
     sales = models.CharField(max_length=150,verbose_name='销售员',choices=sales_choice)
+    # sales = models.CharField(max_length=150,verbose_name='销售员')
     customer = models.CharField(max_length=100,verbose_name='客户名')
-    customer_source = models.CharField(max_length=100,verbose_name='客户来源',choices=customer_source_choice)
-    useage = models.CharField(max_length=100,verbose_name='产品用途',choices=useage_choice)
-    useage_detail = models.CharField(max_length=100,verbose_name='用途细分',choices=useage_detail_choice)
+    customer_source = models.CharField(max_length=100,verbose_name='客户来源')
+    useage = models.CharField(max_length=100,verbose_name='产品用途')
+    useage_detail = models.CharField(max_length=100,verbose_name='用途细分')
+    # customer_source = models.CharField(max_length=100,verbose_name='客户来源',choices=customer_source_choice)
+    # useage = models.CharField(max_length=100,verbose_name='产品用途',choices=useage_choice)
+    # useage_detail = models.CharField(max_length=100,verbose_name='用途细分',choices=useage_detail_choice)
     place = models.CharField(max_length=100,verbose_name='使用场所',null=True,blank=True)
     series_num = models.CharField(max_length=100,verbose_name='产品序列号',null=True,blank=True)
-    province = models.CharField(max_length=100,verbose_name='省份',choices=province_choice)
+    province = models.CharField(max_length=100,verbose_name='省份')
+    # province = models.CharField(max_length=100,verbose_name='省份',choices=province_choice)
     city = models.CharField(max_length=100,verbose_name='城市',null=True,blank=True)
     sale_source =models.CharField(max_length=100,verbose_name='销售渠道',null=True)
     wangwang = models.CharField(max_length=100,verbose_name='客户旺旺号',null=True,blank=True)
@@ -120,6 +126,10 @@ class Order(models.Model):
     remark = models.CharField(max_length=255,verbose_name='订单备注',null=True,blank=True)
     def __str__(self):
         return str(self.id)
+    def total_price(self):
+        total_price = OrderDetail.objects.filter(order_id=self.id).aggregate(total_price=Sum('price'))
+        return total_price['total_price']
+    total_price.short_description = u'总价'
     class Meta:
         verbose_name = '销售报表'
         verbose_name_plural = verbose_name

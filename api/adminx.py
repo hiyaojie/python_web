@@ -5,7 +5,6 @@ from xadmin.layout import Main, Fieldset, Row
 from xadmin import views
 # from api.models import Test,Contact,Tag,Snippet,Income,ProductProject
 from api.models import *
-from .forms import MyForm
 
 
 class BaseSetting(object):
@@ -15,27 +14,28 @@ class BaseSetting(object):
 class ContactAdmin(object):
     list_display = ('name','gender','age','address','phone','email')
     ordering = ('id',)
+xadmin.site.register(Contact,ContactAdmin)
 
-class SnippetAdmin(object):
-    list_display = ('id', 'title', 'code', 'language', 'style')
-    list_per_page = 20
-    ordering = ('id',)
-    list_filter = ('language',)
-    search_fields = ('code', 'language', 'style')
-
-    data_charts = {
-        "user_count": {'title': u"User Register Raise", "x-field": "id", "y-field": ("language",),
-                       "order": ('id',)},
-        # "avg_count": {'title': u"Avg Report", "x-field": "date", "y-field": ('avg_count',), "order": ('date',)}
-    }
-xadmin.site.register(Snippet,SnippetAdmin)
+# class SnippetAdmin(object):
+#     list_display = ('id', 'title', 'code', 'language', 'style')
+#     list_per_page = 20
+#     ordering = ('id',)
+#     list_filter = ('language',)
+#     search_fields = ('code', 'language', 'style')
+#
+#     data_charts = {
+#         "user_count": {'title': u"User Register Raise", "x-field": "id", "y-field": ("language",),
+#                        "order": ('id',)},
+#         # "avg_count": {'title': u"Avg Report", "x-field": "date", "y-field": ('avg_count',), "order": ('date',)}
+#     }
+# xadmin.site.register(Snippet,SnippetAdmin)
 
 
 
 class GlobalSetting(object):
-    site_title = '立影科技后台管理系统'
+    # site_title = '立影科技后台管理系统'
     site_footer = 'http://127.0.0.1:8000/xadmin/'
-    menu_style = 'acccordion'
+    # menu_style = 'accordion'
 
 class IncomeAdmin(object):
     list_display = ('year','income')
@@ -47,8 +47,12 @@ class IncomeAdmin(object):
 
 # xadmin.site.register(Income,IncomeAdmin)
 
+class CodeDicAdmin(object):
+    pass
+xadmin.site.register(CodeDic,CodeDicAdmin)
 
-xadmin.site.register(Contact,ContactAdmin)
+
+
 # xadmin.site.register(Snippet,SnippetAdmin)
 xadmin.site.register(views.BaseAdminView, BaseSetting)
 xadmin.site.register(views.CommAdminView, GlobalSetting)
@@ -75,14 +79,15 @@ class PayDetailInline(object):
 
 class OrderAdmin(object):
     # exclude = ('order_date',)
-    list_display = ('id','order_date','sales','customer','province','city','sale_source','series_num',  )
+    list_display = ('id','order_date','sales','customer','province','city','sale_source','series_num','total_price',)
     search_fields = ('order_num','customer')
-    readonly_fields = ('order_num',)
+    # readonly_fields = ('order_num',)
     list_per_page = 15
     list_filter = ('sales','province','city','customer_source','useage',)
     inlines = (OrderDetailInline,PayDetailInline,)
     show_detail_fields = ['order_num']
     # form = MyForm
+
 
     # fields = ('order_date','order_num','customer')
     def get_form_layout(self):
