@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, F, FloatField, Q
 from pygments.lexers import get_all_lexers
 from pygments.styles import get_all_styles
 
@@ -95,7 +95,7 @@ class ProductProject(models.Model):
         verbose_name_plural = verbose_name
 
 class Order(models.Model):
-    # province_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='province')])
+    province_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='province')])
     # customer_source_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='cus_source')])
     # useage_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='usage')])
     # useage_detail_choice = sorted([(item.name,item.name) for item in CodeDic.objects.filter(type='usage_detail')])
@@ -114,8 +114,8 @@ class Order(models.Model):
     # useage_detail = models.CharField(max_length=100,verbose_name='用途细分',choices=useage_detail_choice)
     place = models.CharField(max_length=100,verbose_name='使用场所',null=True,blank=True)
     series_num = models.CharField(max_length=100,verbose_name='产品序列号',null=True,blank=True)
-    province = models.CharField(max_length=100,verbose_name='省份')
-    # province = models.CharField(max_length=100,verbose_name='省份',choices=province_choice)
+    # province = models.CharField(max_length=100,verbose_name='省份')
+    province = models.CharField(max_length=100,verbose_name='省份',choices=province_choice)
     city = models.CharField(max_length=100,verbose_name='城市',null=True,blank=True)
     sale_source =models.CharField(max_length=100,verbose_name='销售渠道',null=True)
     wangwang = models.CharField(max_length=100,verbose_name='客户旺旺号',null=True,blank=True)
@@ -127,9 +127,26 @@ class Order(models.Model):
     def __str__(self):
         return str(self.id)
     def total_price(self):
-        total_price = OrderDetail.objects.filter(order_id=self.id).aggregate(total_price=Sum('price'))
+        total_price = OrderDetail.objects.filter(order_id=self.id).aggregate(total_price=Sum(F('price')*F('num'),output_field=FloatField()))
         return total_price['total_price']
     total_price.short_description = u'总价'
+    def goods_des(self):
+        # goods_des = OrderDetail.objects.filter(order_id=self.id).aggregate()
+        sql1 ='''
+        SELECT
+1 as id,a.order_id_id,
+group_concat(concat(a.product_name,'*',a.num)) as des
+FROM
+api_orderdetail AS a
+where a.order_id_id={}
+GROUP BY
+a.order_id_id
+        '''.format(self.id)
+        goods_des = OrderDetail.objects.raw(sql1)[0].des
+        return goods_des
+    goods_des.short_description = u'商品明细'
+
+
     class Meta:
         verbose_name = '销售报表'
         verbose_name_plural = verbose_name

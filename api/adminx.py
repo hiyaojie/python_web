@@ -79,7 +79,7 @@ class PayDetailInline(object):
 
 class OrderAdmin(object):
     # exclude = ('order_date',)
-    list_display = ('id','order_date','sales','customer','province','city','sale_source','series_num','total_price',)
+    list_display = ('id','order_date','sales','customer','province','city','sale_source','series_num','total_price','goods_des',)
     search_fields = ('order_num','customer')
     # readonly_fields = ('order_num',)
     list_per_page = 15
@@ -116,3 +116,19 @@ class OrderAdmin(object):
         return super(OrderAdmin, self).get_form_layout()
 
 xadmin.site.register(Order,OrderAdmin)
+
+class OrderDetailAdmin(object):
+    list_display = ('order_id','product_name','product_model','num','price',)
+    list_per_page = 15
+    list_filter = ('order_id',)
+    # readonly_fields = ('order_id','product_name','product_model','num','price',)
+    ordering = ('order_id',)
+xadmin.site.register(OrderDetail,OrderDetailAdmin)
+
+class PayDetailAdmin(object):
+    list_display = ('order_id','pay_date','source','money',)
+    list_per_page = 15
+    list_filter = ('order_id',)
+    ordering = ('order_id',)
+xadmin.site.register(PayDetail,PayDetailAdmin)
+
